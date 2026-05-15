@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Matters Most?</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --off-white: #f5f5f0;
+    --grey: #888;
+    --light-grey: #e0e0e0;
+    --yellow: #FFD700;
+    --orange: #FF6B2B;
+    --red: #E52535;
+    --purple: #8B45C6;
+    --blue: #2B7FFF;
+    --sky: #5BC8F5;
+    --green: #2DB84B;
+    --coral: #FF5A5F;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--black);
+  }
+
+  /* ── Slide Container ── */
+  .deck { width: 100%; height: 100%; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6vh 8vw;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .slide-inner {
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  /* ── Typography ── */
+  .big-title {
+    font-family: 'Libre Bodoni', serif;
+    font-weight: 700;
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .section-title {
+    font-family: 'Libre Bodoni', serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 4rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .slide-heading {
+    font-family: 'Libre Bodoni', serif;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+  }
+
+  .overline {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: clamp(0.65rem, 1vw, 0.85rem);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-bottom: 1.5rem;
+  }
+
+  .body-text {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+    line-height: 1.65;
+    color: #333;
+  }
+
+  .bullet-list {
+    list-style: none;
+    padding: 0;
+  }
+  .bullet-list li {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+    line-height: 1.55;
+    color: #333;
+    padding: 0.4em 0 0.4em 1.6em;
+    position: relative;
+  }
+  .bullet-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--black);
+  }
+
+  .accent-yellow li::before { background: var(--yellow); }
+  .accent-orange li::before { background: var(--orange); }
+  .accent-red li::before { background: var(--red); }
+  .accent-purple li::before { background: var(--purple); }
+  .accent-blue li::before { background: var(--blue); }
+  .accent-green li::before { background: var(--green); }
+  .accent-coral li::before { background: var(--coral); }
+
+  em, .em { font-style: italic; }
+  strong, .strong { font-weight: 700; }
+
+  .color-yellow { color: var(--yellow); }
+  .color-orange { color: var(--orange); }
+  .color-red { color: var(--red); }
+  .color-purple { color: var(--purple); }
+  .color-blue { color: var(--blue); }
+  .color-green { color: var(--green); }
+  .color-coral { color: var(--coral); }
+
+  .highlight {
+    display: inline;
+    padding: 0.05em 0.2em;
+    border-radius: 3px;
+  }
+  .highlight-yellow { background: var(--yellow); color: var(--black); }
+  .highlight-orange { background: var(--orange); color: var(--white); }
+  .highlight-red { background: var(--red); color: var(--white); }
+  .highlight-blue { background: var(--blue); color: var(--white); }
+
+  /* ── Layout helpers ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4vw;
+    align-items: start;
+  }
+
+  .centered { text-align: center; }
+
+  .v-stack { display: flex; flex-direction: column; gap: 1rem; }
+
+  .photo-placeholder {
+    background: var(--off-white);
+    border: 2px dashed var(--light-grey);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--grey);
+    min-height: 250px;
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  /* ── Divider slide (section break) ── */
+  .slide-divider {
+    background: var(--black);
+    color: var(--white);
+  }
+  .slide-divider .overline { color: rgba(255,255,255,0.4); }
+  .slide-divider .body-text { color: rgba(255,255,255,0.7); }
+
+  /* color dividers */
+  .slide-yellow { background: var(--yellow); color: var(--black); }
+  .slide-orange { background: var(--orange); color: var(--white); }
+  .slide-red { background: var(--red); color: var(--white); }
+  .slide-blue { background: var(--blue); color: var(--white); }
+  .slide-green { background: var(--green); color: var(--white); }
+
+  .slide-yellow .overline,
+  .slide-yellow .body-text { color: rgba(0,0,0,0.6); }
+  .slide-orange .overline,
+  .slide-red .overline,
+  .slide-blue .overline,
+  .slide-green .overline { color: rgba(255,255,255,0.5); }
+  .slide-orange .body-text,
+  .slide-red .body-text,
+  .slide-blue .body-text,
+  .slide-green .body-text { color: rgba(255,255,255,0.85); }
+
+  /* ── Verdict table ── */
+  .verdict-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.3rem 1.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+  }
+  .verdict-grid .label {
+    font-weight: 700;
+    text-align: right;
+  }
+  .verdict-grid .value {
+    font-weight: 400;
+    color: #555;
+  }
+
+  /* ── Big stat ── */
+  .big-stat {
+    font-family: 'Libre Bodoni', serif;
+    font-weight: 700;
+    font-size: clamp(4rem, 10vw, 9rem);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    color: var(--grey);
+    margin-top: 0.5rem;
+  }
+
+  /* ── Navigation ── */
+  .nav-bar {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: var(--grey);
+    z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    border: 1px solid var(--light-grey);
+  }
+  .nav-bar button {
+    background: none;
+    border: 1px solid var(--light-grey);
+    border-radius: 50%;
+    width: 32px; height: 32px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .nav-bar button:hover { background: var(--off-white); }
+
+  /* ── Vertical side label ── */
+  .side-label {
+    position: absolute;
+    left: 2.5vw;
+    bottom: 15vh;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-family: 'Libre Bodoni', serif;
+    font-weight: 700;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    color: rgba(0,0,0,0.06);
+    pointer-events: none;
+    letter-spacing: -0.02em;
+  }
+
+  .small-note {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--grey);
+    font-style: italic;
+  }
+
+  /* ── Inter Gravissimas special ── */
+  .ig-item {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+    margin-bottom: 1rem;
+  }
+  .ig-num {
+    font-family: 'Libre Bodoni', serif;
+    font-weight: 700;
+    font-size: 2rem;
+    color: var(--red);
+    flex-shrink: 0;
+  }
+  .ig-text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+    line-height: 1.5;
+    color: #333;
+  }
+
+  /* ── Calendar jump ── */
+  .cal-jump {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  .cal-date {
+    font-family: 'Libre Bodoni', serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+  }
+  .cal-arrow {
+    font-size: 2rem;
+    color: var(--red);
+  }
+
+  /* IARC table */
+  .iarc-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 1.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+  }
+  .iarc-grid .cat { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SLIDE 1: TITLE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="slide active" data-slide="0">
+  <div class="slide-inner centered">
+    <div class="overline">What Matters Most</div>
+    <div class="big-title">Things You<br>Didn't <span class="color-red">Need</span><br>or <span class="color-orange">Want</span><br>to Know<br><em>Debunked</em></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION: MOUNTAINS -->
+<!-- ═══════════════════════════════════════════ -->
+
+<!-- SLIDE 2: Setup -->
+<div class="slide slide-divider" data-slide="1">
+  <div class="slide-inner">
+    <div class="overline">Part One</div>
+    <div class="big-title">The Tallest<br>Mountain</div>
+    <p class="body-text" style="margin-top:1.5rem;">You "know" Mount Everest is the tallest mountain.<br>You are wrong. Or right. Depending on the ruler.</p>
+    <p class="body-text" style="margin-top:0.8rem;">There are three contestants. None of this is standardized. We are vibing.</p>
+  </div>
+</div>
+
+<!-- SLIDE 3: Everest -->
+<div class="slide" data-slide="2">
+  <div class="side-label">Everest</div>
+  <div class="slide-inner">
+    <div class="overline">Contestant #1</div>
+    <div class="slide-heading">Mount Everest<br><span class="color-orange">The People's Champion</span></div>
+    <ul class="bullet-list accent-orange">
+      <li><strong>8,848.86 m</strong> above sea level</li>
+      <li>That number took Nepal and China until <strong>December 2020</strong> to agree on</li>
+      <li>Wins on: "highest point above sea level"</li>
+      <li>That's it. That's the whole claim.</li>
+    </ul>
+    <div class="photo-placeholder" style="margin-top:1.5rem;">📷 Photo: Mount Everest</div>
+  </div>
+</div>
+
+<!-- SLIDE 4: Mauna Kea -->
+<div class="slide" data-slide="3">
+  <div class="side-label">Mauna Kea</div>
+  <div class="slide-inner">
+    <div class="overline">Contestant #2</div>
+    <div class="slide-heading">Mauna Kea<br><span class="color-blue">The Underdog (Literally)</span></div>
+    <ul class="bullet-list accent-blue">
+      <li><strong>4,205 m</strong> above sea level (embarrassing in this lineup)</li>
+      <li><strong>~10,210 m</strong> from its base on the Pacific Ocean floor to summit</li>
+      <li>Wins on: "base to peak." Beats Everest by <strong>1.4 km</strong>.</li>
+      <li>60% of it is underwater, sulking</li>
+      <li>Fun bonus: Mauna Kea's weight has pushed the ocean crust down 8 km. The mountain is sinking into the planet. Even Mauna Kea cannot handle Mauna Kea.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 5: Chimborazo -->
+<div class="slide" data-slide="4">
+  <div class="side-label">Chimborazo</div>
+  <div class="slide-inner">
+    <div class="overline">Contestant #3</div>
+    <div class="slide-heading">Mount Chimborazo<br><span class="color-purple">The Loophole Guy</span></div>
+    <ul class="bullet-list accent-purple">
+      <li>Only <strong>6,263 m</strong> above sea level</li>
+      <li>BUT: Earth bulges at the equator (it's an oblate spheroid)</li>
+      <li>Chimborazo sits 1° south of the equator, right on the bulge</li>
+      <li>From Earth's center, its summit is <strong>2,072 m farther out</strong> than Everest's</li>
+      <li>Wins on: "closest point on Earth's surface to outer space"</li>
+      <li>The mountain equivalent of <em>"well, technically…"</em></li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 6: Sea Level -->
+<div class="slide" data-slide="5">
+  <div class="slide-inner">
+    <div class="slide-heading">So Why Isn't This Standardized?</div>
+    <ul class="bullet-list accent-coral">
+      <li>Sea level is the convention for aviation, weather, mapping → mountains inherited it</li>
+      <li>Awkward bit: <strong>sea level itself is fake</strong></li>
+      <li>The ocean isn't level. The Atlantic is ~1 m lower on one side of the Gulf Stream</li>
+      <li>What we actually use: the <strong>geoid</strong>, a math model of what sea level <em>would</em> be without weather, tides, and currents</li>
+      <li>The geoid looks like a lumpy potato</li>
+      <li><strong>We measure mountains against an imaginary potato</strong></li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 7: Verdict -->
+<div class="slide slide-yellow" data-slide="6">
+  <div class="slide-inner centered">
+    <div class="overline">The Verdict</div>
+    <div class="verdict-grid" style="max-width:500px; margin: 2rem auto;">
+      <span class="label">Everest</span><span class="value">= highest</span>
+      <span class="label">Mauna Kea</span><span class="value">= tallest</span>
+      <span class="label">Chimborazo</span><span class="value">= furthest</span>
+    </div>
+    <p class="body-text" style="margin-top:2rem;">All correct. All wrong. None of this matters.</p>
+    <p class="body-text" style="margin-top:1rem;">Also Olympus Mons on Mars is 21.9 km tall,<br>more than 2× any of these. <strong>Stay humble.</strong></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION: RAINBOWS -->
+<!-- ═══════════════════════════════════════════ -->
+
+<!-- SLIDE 8: Rainbow intro -->
+<div class="slide slide-divider" data-slide="7">
+  <div class="slide-inner centered">
+    <div class="overline">Part Two</div>
+    <div class="big-title" style="color: var(--white);">Rainbows</div>
+    <p class="body-text" style="margin-top:1rem;">What do they look like?</p>
+  </div>
+</div>
+
+<!-- SLIDE 9: What's different -->
+<div class="slide" data-slide="8">
+  <div class="slide-inner centered">
+    <div class="slide-heading">What looks different here?</div>
+    <div class="photo-placeholder" style="min-height:400px;">📷 Picture 1<br><span class="small-note">(Your comparison image)</span></div>
+  </div>
+</div>
+
+<!-- SLIDE 10: 3 Colours -->
+<div class="slide" data-slide="9">
+  <div class="slide-inner two-col">
+    <div>
+      <div class="overline">340 BC</div>
+      <div class="section-title">For thousands of years, rainbows only existed in <span class="color-red">3</span> colours.</div>
+    </div>
+    <div class="photo-placeholder">📷 Aristotle</div>
+  </div>
+</div>
+
+<!-- SLIDE 11: Language -->
+<div class="slide" data-slide="10">
+  <div class="slide-inner two-col">
+    <div class="photo-placeholder">📷 William Gladstone</div>
+    <div class="photo-placeholder">📷 Wine-dark sea</div>
+  </div>
+</div>
+
+<!-- SLIDE 12: Blue dye -->
+<div class="slide slide-blue" data-slide="11">
+  <div class="slide-inner centered">
+    <div class="overline">The Rarest Colour</div>
+    <div class="big-title">Blue Dye</div>
+    <p class="body-text" style="margin-top:1rem;">More expensive than gold for most of human history.</p>
+  </div>
+</div>
+
+<!-- SLIDE 13: Newton -->
+<div class="slide" data-slide="12">
+  <div class="slide-inner">
+    <div class="overline">1665</div>
+    <div class="slide-heading">Newton sees 5 colours.<br>Decides there should be <span class="color-purple">7</span>.</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+      <div class="photo-placeholder">📷 Isaac Newton</div>
+      <div class="photo-placeholder">📷 Prism</div>
+      <div class="photo-placeholder">📷 Musical Scale</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 14: Rainbow -->
+<div class="slide" data-slide="13">
+  <div class="slide-inner centered">
+    <div class="section-title" style="margin-bottom:1.5rem;">How many colours does a rainbow <em>actually</em> have?</div>
+    <p class="body-text">It's a continuous spectrum. No lines. No bands.<br>An infinite gradient. We just drew borders on it.</p>
+    <div class="photo-placeholder" style="margin-top: 1.5rem; min-height: 250px;">📷 Rainbow</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION: GLYPHOSATE -->
+<!-- ═══════════════════════════════════════════ -->
+
+<!-- SLIDE 15: What is it -->
+<div class="slide slide-green" data-slide="14">
+  <div class="slide-inner">
+    <div class="overline">Part Three</div>
+    <div class="big-title">Glyphosate</div>
+    <p class="body-text" style="margin-top:1rem;">What even is it?</p>
+  </div>
+</div>
+
+<!-- SLIDE 16: Definition -->
+<div class="slide" data-slide="15">
+  <div class="slide-inner">
+    <div class="slide-heading">What Even Is It</div>
+    <ul class="bullet-list accent-green">
+      <li>Glyphosate = active ingredient in Roundup. Invented 1974.</li>
+      <li>Kills weeds by blocking the <strong>shikimate pathway</strong></li>
+      <li>Humans and animals don't have this pathway</li>
+      <li>It's like trying to break a lock you don't own</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 17: Why Everywhere -->
+<div class="slide" data-slide="16">
+  <div class="slide-inner">
+    <div class="slide-heading">Why It's Everywhere</div>
+    <ul class="bullet-list accent-green">
+      <li>Supports <strong>~75%</strong> of US cropland</li>
+      <li>Most-used herbicide on Earth</li>
+      <li>Low mammalian toxicity (comparable to table salt; paraquat, which it replaced, kills you in a teaspoon)</li>
+      <li>Enabled <strong>no-till farming</strong>, which is the actual headline</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 18: No-Till -->
+<div class="slide" data-slide="17">
+  <div class="slide-inner">
+    <div class="slide-heading">The No-Till Receipts</div>
+    <ul class="bullet-list accent-green">
+      <li>US cropland erosion rates <strong>↓ ~33%</strong> since 1982</li>
+      <li>Glyphosate-tolerant soybean adoption alone cut erosion by <strong>27 million tons/year</strong></li>
+      <li>Saves ~60 million gallons of diesel/year in the US</li>
+      <li>~500,000 tons of CO₂ avoided per year</li>
+      <li>If you care about soil and carbon, glyphosate is doing the work</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 19: Everyone Yelling -->
+<div class="slide slide-red" data-slide="18">
+  <div class="slide-inner centered">
+    <div class="overline">March 2015</div>
+    <div class="section-title" style="color: var(--white);">IARC classifies glyphosate as<br>"probably carcinogenic"<br><span style="opacity:0.7;">(Group 2A)</span></div>
+    <p class="body-text" style="margin-top:1.5rem;">Cue: panic, lawsuits, billions in Bayer settlements,<br>your aunt's WhatsApp forwards</p>
+  </div>
+</div>
+
+<!-- SLIDE 20: Hazard vs Risk -->
+<div class="slide" data-slide="19">
+  <div class="slide-inner">
+    <div class="slide-heading">The Most Important Distinction<br>Nobody Understands</div>
+    <div class="two-col" style="margin-top:1.5rem;">
+      <div style="padding: 1.5rem; background: #FFF3E0; border-radius: 8px;">
+        <div style="font-family: 'Libre Bodoni', serif; font-weight:700; font-size:1.4rem; margin-bottom:0.5rem;">Hazard</div>
+        <p class="body-text">"Could this cause harm in some dose, somewhere?"</p>
+      </div>
+      <div style="padding: 1.5rem; background: #E8F5E9; border-radius: 8px;">
+        <div style="font-family: 'Libre Bodoni', serif; font-weight:700; font-size:1.4rem; margin-bottom:0.5rem;">Risk</div>
+        <p class="body-text">"Will the amount you actually encounter hurt you?"</p>
+      </div>
+    </div>
+    <p class="body-text" style="margin-top:1.5rem; text-align:center;"><strong>The sun is a Group 1 carcinogen. The sun is still operational.</strong></p>
+  </div>
+</div>
+
+<!-- SLIDE 21: Group 2A Friends -->
+<div class="slide" data-slide="20">
+  <div class="slide-inner">
+    <div class="slide-heading">Glyphosate's Group <span class="color-orange">2A</span> Friends</div>
+    <div class="two-col">
+      <div>
+        <p class="overline" style="margin-bottom:0.8rem;">Group 2A — Probably Carcinogenic</p>
+        <ul class="bullet-list accent-orange">
+          <li>Red meat</li>
+          <li>Working night shifts</li>
+          <li>Being a hairdresser</li>
+          <li>Drinking beverages above 65°C</li>
+        </ul>
+      </div>
+      <div>
+        <p class="overline" style="margin-bottom:0.8rem;">Group 1 — Definitely Carcinogenic</p>
+        <ul class="bullet-list accent-red">
+          <li>Tobacco</li>
+          <li>Asbestos</li>
+          <li>Alcohol</li>
+          <li><strong>Bacon</strong></li>
+          <li>Outdoor air pollution</li>
+        </ul>
+      </div>
+    </div>
+    <p class="body-text" style="margin-top:1.5rem; text-align:center;">Bacon is in a higher cancer category than glyphosate. <strong>Bacon.</strong></p>
+  </div>
+</div>
+
+<!-- SLIDE 22: IARC vs EPA -->
+<div class="slide" data-slide="21">
+  <div class="slide-inner">
+    <div class="slide-heading">The IARC vs. EPA Beef</div>
+    <ul class="bullet-list accent-coral">
+      <li>Almost every major regulator disagrees with IARC: EPA, EFSA, ECHA, Health Canada, Australian regulator, Japanese Food Safety Commission, WHO/FAO</li>
+      <li>IARC reviewed 8 animal studies; EPA reviewed 15</li>
+      <li>IARC uses only published studies (rigorous); regulators include industry data (more complete)</li>
+      <li>IARC asks "any cancer link, anywhere?"; regulators ask "at actual exposure levels?"</li>
+      <li>Both defensible. Real scientific disagreement, not a conspiracy.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 23: Real Concern -->
+<div class="slide" data-slide="22">
+  <div class="slide-inner">
+    <div class="slide-heading">Where There <em>IS</em> A Real Concern</div>
+    <ul class="bullet-list accent-red">
+      <li>Decades of unprotected occupational spraying: modest increase in non-Hodgkin lymphoma risk</li>
+      <li>Wear gloves. Read the label.</li>
+      <li>Consumer exposure from food? Orders of magnitude below anything that's shown an effect.</li>
+      <li>You'd have to eat absolutely deranged quantities of bread.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 24: What If Ban -->
+<div class="slide" data-slide="23">
+  <div class="slide-inner">
+    <div class="slide-heading">What Happens If We Ban It</div>
+    <ul class="bullet-list accent-orange">
+      <li>Farmers go back to tilling → more erosion, more carbon released</li>
+      <li>Or switch to older, more toxic herbicides we deliberately moved away from</li>
+      <li>Food prices ↑ (a 10% tax alone = $98M/year in losses for US corn)</li>
+      <li>Imports from countries with weaker regulation → you eat it anyway</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 25: Boring Take -->
+<div class="slide slide-divider" data-slide="24">
+  <div class="slide-inner centered">
+    <div class="overline">The Boring Correct Take</div>
+    <div class="section-title" style="color: var(--white);">Glyphosate is in the same cancer category as your barber.</div>
+    <p class="body-text" style="margin-top:1.5rem;">It enabled the soil conservation movement.<br>We're regulating it out of existence based on vibes.</p>
+    <p class="body-text" style="margin-top:1rem;">"Use it carefully, watch the data."</p>
+    <p class="body-text" style="margin-top:0.5rem; font-style:italic; opacity:0.6;">Which is unfortunately the take nobody will retweet.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION: CALENDAR -->
+<!-- ═══════════════════════════════════════════ -->
+
+<!-- SLIDE 26: Calendar intro -->
+<div class="slide slide-orange" data-slide="25">
+  <div class="slide-inner centered">
+    <div class="overline">Part Four</div>
+    <div class="big-title">October 5–14, 1582</div>
+    <p class="body-text" style="margin-top:1rem;">No human was born between these days.<br>They don't exist.</p>
+  </div>
+</div>
+
+<!-- SLIDE 27: Roman Calendar -->
+<div class="slide" data-slide="26">
+  <div class="slide-inner">
+    <div class="slide-heading">To understand why, we need to go all the way back to the <span class="color-orange">Roman Kingdom</span></div>
+    <p class="body-text">Before it was Republic and Empire.</p>
+  </div>
+</div>
+
+<!-- SLIDE 28: Julius Caesar -->
+<div class="slide" data-slide="27">
+  <div class="slide-inner two-col">
+    <div class="photo-placeholder" style="min-height:350px;">📷 Julius Caesar</div>
+    <div class="v-stack">
+      <div class="overline">46 BC</div>
+      <div class="slide-heading">The Last Year of Confusion</div>
+      <p class="body-text">Caesar's calendar was so broken that harvest festivals were being celebrated before the crops were even taken in. He made 46 BC last <strong>445 days</strong> to fix it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 29: Gregory XIII -->
+<div class="slide" data-slide="28">
+  <div class="slide-inner two-col">
+    <div class="photo-placeholder" style="min-height:300px;">📷 Pope Gregory XIII</div>
+    <div class="photo-placeholder" style="min-height:300px;">📷 Council of Nicaea</div>
+  </div>
+</div>
+
+<!-- SLIDE 30: Inter Gravissimas -->
+<div class="slide" data-slide="29">
+  <div class="slide-inner">
+    <div class="overline">February 24, 1582</div>
+    <div class="slide-heading" style="font-style:italic;">Inter Gravissimas</div>
+    <p class="body-text" style="margin-bottom:2rem; color: var(--grey);">"Among the Gravest Concerns"</p>
+    <div class="ig-item">
+      <span class="ig-num">1</span>
+      <span class="ig-text">Fix the leap day to include a leap year — centennial years not divisible by 400 would no longer be leap years</span>
+    </div>
+    <div class="ig-item">
+      <span class="ig-num">2</span>
+      <span class="ig-text">Moved the calendar 10 days forward to catch up on lost time</span>
+    </div>
+    <div class="cal-jump">
+      <span class="cal-date">October 4</span>
+      <span class="cal-arrow">→</span>
+      <span class="cal-date">October 15</span>
+    </div>
+    <p class="body-text centered" style="margin-top:1rem;">1582</p>
+  </div>
+</div>
+
+</div><!-- end deck -->
+
+<!-- Navigation -->
+<div class="nav-bar">
+  <button id="prevBtn" onclick="changeSlide(-1)">←</button>
+  <span id="slideCounter">1 / 30</span>
+  <button id="nextBtn" onclick="changeSlide(1)">→</button>
+</div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+
+  function showSlide(n) {
+    slides.forEach(s => s.classList.remove('active'));
+    slides[n].classList.add('active');
+    document.getElementById('slideCounter').textContent = `${n + 1} / ${total}`;
+
+    // Adapt nav bar colors for dark slides
+    const nav = document.querySelector('.nav-bar');
+    const isDark = slides[n].classList.contains('slide-divider') ||
+                   slides[n].classList.contains('slide-red') ||
+                   slides[n].classList.contains('slide-blue') ||
+                   slides[n].classList.contains('slide-orange') ||
+                   slides[n].classList.contains('slide-green');
+    if (isDark) {
+      nav.style.background = 'rgba(0,0,0,0.5)';
+      nav.style.borderColor = 'rgba(255,255,255,0.15)';
+      nav.style.color = 'rgba(255,255,255,0.7)';
+      nav.querySelectorAll('button').forEach(b => {
+        b.style.color = '#fff';
+        b.style.borderColor = 'rgba(255,255,255,0.2)';
+      });
+    } else {
+      nav.style.background = 'rgba(255,255,255,0.85)';
+      nav.style.borderColor = '#e0e0e0';
+      nav.style.color = '#888';
+      nav.querySelectorAll('button').forEach(b => {
+        b.style.color = '#0a0a0a';
+        b.style.borderColor = '#e0e0e0';
+      });
+    }
+  }
+
+  function changeSlide(dir) {
+    current = Math.max(0, Math.min(total - 1, current + dir));
+    showSlide(current);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+  });
+
+  // Touch support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+
+  showSlide(0);
+</script>
+
+</body>
+</html>
